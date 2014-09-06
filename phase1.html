@@ -1,0 +1,42 @@
+<html>
+<head>
+<style>
+body { max-width: 800px;}
+ul#chat-buffer { 
+  list-style: none;
+  padding-left: 0;
+}
+ul#chat-buffer li:nth-child(even) { background-color: #EEE; }
+</style>
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
+<script>
+$( document ).ready(function() {
+  var ref = new Firebase("https://neohack-chat.firebaseio.com/");
+  $("#submit").click(function() {
+    var username = $("#username").val();
+    var message = $("#message").val();
+
+	ref.child("messages").push({
+	  username: username,
+      message: message
+	  });
+  });
+  ref.child("messages").on("child_added", function(snapshot) {
+    var value = snapshot.val();
+    $("#chat-buffer").append("<li>"+value.username+" said "+value.message+"</li>");
+  });
+});
+</script>
+</head>
+<body>
+
+<ul id="chat-buffer">
+</ul>
+
+<hr>
+<input id="username" placeholder="username" type="text">
+<input id="message" placeholder="username" type="text">
+<input type="submit" id="submit">
+</body>
+</html>
