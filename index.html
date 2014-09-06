@@ -9,52 +9,9 @@ ul#chat-buffer {
 ul#chat-buffer li:nth-child(even) { background-color: #EEE; }
 </style>
 <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
-<script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
 <script>
 $( document ).ready(function() {
-  var ref = new Firebase("https://neohack-chat.firebaseio.com/");
-  $("#submit").click(function() {
-    if(currentUser == null) {
-      alert("no one is here. Go home");
-      return;
-    }
-
-    var username = $("#username").val();
-    var message = $("#message").val();
-
-	ref.child("messages").push({
-	  username: currentUser.username,
-      message: message
-	  });
-  });
-  ref.child("messages").on("child_added", function(snapshot) {
-    var value = snapshot.val();
-    $("#chat-buffer").append("<li>"+value.username+" said "+value.message+"</li>");
-  });
-
-  // Auth stuff
-var currentUser;
-var authClient = new FirebaseSimpleLogin(ref, function(error, user) {
-  if (error) {
-	// an error occurred while attempting login
-	console.log(error);
-  } else if (user) {
-	// user authenticated with Firebase
-	console.log("User ID: " + user.uid + ", Provider: " + user.provider);
-    
-    $("input").show();
-    $("#login").hide();
-    currentUser = user;
-    
-  } else {
-	// user is logged out
-  }
-});
-
-  $("#login").click(function() {
-    authClient.login("github");
-  });
+  console.log("hello world!");
 });
 </script>
 </head>
@@ -64,8 +21,8 @@ var authClient = new FirebaseSimpleLogin(ref, function(error, user) {
 </ul>
 
 <hr>
-<button id="login">Log in with GitHub</button>
-<input style="display: none;" id="message" placeholder="message" type="text">
-<input style="display: none;" type="submit" id="submit">
+<input id="username" placeholder="username" type="text">
+<input id="message" placeholder="message" type="text">
+<input type="submit" id="submit">
 </body>
 </html>
