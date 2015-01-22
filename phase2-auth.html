@@ -1,62 +1,65 @@
 <html>
 <head>
-<style>
-body { max-width: 800px;}
-ul#chat-buffer { 
-  list-style: none;
-  padding-left: 0;
-}
-ul#chat-buffer li:nth-child(even) { background-color: #EEE; }
-</style>
-<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
-<script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
-<script src="https://cdn.firebase.com/js/simple-login/1.6.3/firebase-simple-login.js"></script>
-<script>
-$( document ).ready(function() {
-  var ref = new Firebase("https://neohack-chat.firebaseio.com/");
-  $("#submit").click(function() {
-    if(currentUser == null) {
-      alert("no one is here. Go home");
-      return;
+  <style>
+    body {
+      max-width: 800px;
     }
 
-    var username = $("#username").val();
-    var message = $("#message").val();
+    ul#chat-buffer {
+      list-style: none;
+      padding-left: 0;
+    }
 
-	ref.child("messages").push({
-	  username: currentUser.username,
-      message: message
-	  });
-  });
-  ref.child("messages").on("child_added", function(snapshot) {
-    var value = snapshot.val();
-    $("#chat-buffer").append("<li>"+value.username+" said "+value.message+"</li>");
-  });
+    ul#chat-buffer li:nth-child(even) {
+      background-color: #EEE;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="https://cdn.firebase.com/js/client/2.1.1/firebase.js"></script>
+  <script>
+    $(document).ready(function () {
+      var ref = new Firebase("https://dinosaurs.firebaseio.com/");
+      $("#submit").click(function () {
+        if (currentUser == null) {
+          alert("no one is here. Go home");
+          return;
+        }
 
-  // Auth stuff
-var currentUser;
-var authClient = new FirebaseSimpleLogin(ref, function(error, user) {
-  if (error) {
-	// an error occurred while attempting login
-	console.log(error);
-  } else if (user) {
-	// user authenticated with Firebase
-	console.log("User ID: " + user.uid + ", Provider: " + user.provider);
-    
-    $("input").show();
-    $("#login").hide();
-    currentUser = user;
-    
-  } else {
-	// user is logged out
-  }
-});
+        var message = $("#message").val();
 
-  $("#login").click(function() {
-    authClient.login("github");
-  });
-});
-</script>
+        ref.child("messages").push({
+          username: currentUser.github.username,
+          message: message
+        });
+      });
+      ref.child("messages").on("child_added", function (snapshot) {
+        var value = snapshot.val();
+        var html = $("<li/>").text(value.username + " said " + value.message);
+        $("#chat-buffer").append(html);
+      });
+
+      // Auth stuff
+      var currentUser;
+      $("#login").click(function () {
+        ref.authWithOAuthPopup("github", function(error, authData) {
+          if (error) {
+            // an error occurred while attempting login
+            console.log(error);
+          } else if (authData) {
+            // user authenticated with Firebase
+            console.log("User ID: " + authData.uid + ", Provider: " + authData.provider);
+
+            $("input").show();
+            $("#login").hide();
+            currentUser = authData;
+
+          } else {
+            // user is logged out
+          }
+        });
+      });
+    });
+  </script>
 </head>
 <body>
 
