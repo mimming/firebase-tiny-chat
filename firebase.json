@@ -1,5 +1,5 @@
 {
-  "firebase": "neohack-chat",
+  "firebase": "dinosaurs",
   "public": ".",
   "ignore": [
     "firebase.json",

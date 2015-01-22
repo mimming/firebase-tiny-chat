@@ -14,21 +14,83 @@
       background-color: #EEE;
     }
   </style>
+  <script src="https://cdn.firebase.com/js/client/2.1.1/firebase.js"></script>
   <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
   <script>
     $(document).ready(function () {
       console.log("hello world!");
+
+      var ref =
+          new Firebase("https://dinosaurs.firebaseio.com/");
+      var messagesRef = ref.child("messages");
+      var typingRef = ref.child("typing");
+      
+      var currentUser;
+
+      $("#submit").click(function () {
+        var username = $("#username").val();
+        var message = $("#message").val();
+            
+        messagesRef.push({
+          username: currentUser.displayName,
+          message: message
+        });
+        var thisTypingRef = typingRef.child(currentUser.uid);
+        
+        thisTypingRef.set(null);
+      });
+      
+      messagesRef.limitToLast(10).on("child_added", function(snapshot) {
+        var msg = snapshot.val();
+        
+        $("#chat-buffer").append("<li>"+msg.username + " said " + msg.message + "</li>");
+      });
+
+      typingRef.on("value", function(snapshot) {
+        $("#dinosaurs").empty();
+        var typers = snapshot.val();
+        for(i in typers) {
+          var typer = typers[i];
+          $("#dinosaurs").append("<img src='./dino.jpg'> " + typer.uid);
+        }
+      });
+
+      
+      $("#message").keydown(function() {
+        var thisTypingRef = typingRef.child(currentUser.uid);
+        thisTypingRef.set("true");
+      });
+      
+      $("#login").click(function() {
+        ref.authWithOAuthPopup("github", function(error, authData) {
+          if (error) {
+            alert("Login Failed!", error);
+          } else {
+            console.log("Authenticated successfully with payload:", authData);
+            $("#submit, #message, #login").toggle();
+            
+            currentUser = {
+              displayName: authData.github.displayName,
+              uid: authData.uid
+            };
+          }
+        });        
+      });
     });
   </script>
 </head>
 <body>
 
+<div id="dinosaurs">
+  
+  
+</div>
 <ul id="chat-buffer">
 </ul>
 
 <hr>
-<input id="username" placeholder="username" type="text">
-<input id="message" placeholder="message" type="text">
-<input type="submit" id="submit">
+<button id="login">Login! Yay!</button>
+<input style="display:none;" id="message" placeholder="message" type="text">
+<input style="display:none;" type="submit" id="submit">
 </body>
 </html>
