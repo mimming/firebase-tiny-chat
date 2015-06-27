@@ -1,0 +1,79 @@
+<html>
+<head>
+  <style>
+    body {
+      max-width: 800px;
+    }
+    ul#chat-buffer {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul#chat-buffer li:nth-child(even) {
+      background-color: #EEE;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="https://cdn.firebase.com/js/client/2.2.5/firebase.js"></script>
+  <script>
+    var currentUser = {};
+
+    $(document).ready(function () {
+      console.log("hello world!");
+
+      var ref = new Firebase("https://dinosaurs.firebaseio.com/messages/");
+
+      // Auth!!!  whee!
+
+      $("#submit").click(function () {
+
+        var email = $("#email").val();
+        var password = $("#password").val();
+        
+        // creates the user
+        ref.createUser({
+          email    : email,
+          password : password
+        }, function(error, userData) {
+          if (error) {
+            console.log("Error creating user:", error);
+            $("#chat-buffer").text("Something went wrong :(  Try again");
+            
+          } else {
+
+            console.log("Successfully created user account with uid:", userData);
+            
+            // auth the user, so we can get their token
+            ref.authWithPassword({
+              email    : email,
+              password : password
+            }, function(error, authData) {
+              if (error) {
+                console.log("Login Failed!", error);
+              } else {
+                
+
+                $("#chat-buffer").text("Created!  Your REST token is: " + authData.token);
+
+              }
+            });
+
+          }
+        });
+        
+      });
+
+    });
+  </script>
+</head>
+<body>
+
+<div id="chat-buffer"></div>
+
+<hr>
+<input id="email" placeholder="email" type="text">
+
+<input id="password" placeholder="password" type="text">
+<input type="submit" id="submit">
+
+</body>
+</html>
